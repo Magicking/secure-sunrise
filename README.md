@@ -11,6 +11,7 @@ Inner working
 Example for: 
 **T** = 60
 **B** = 5
+
 Silling sun in buffer:
 1. Select a camera using the appropriate method
 2. Record and encode for **T** seconds to make a video segment[^encodersegment]

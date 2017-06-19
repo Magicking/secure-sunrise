@@ -37,6 +37,9 @@ IDEA
 -------
 Camera selection proposal:
 
+CURRENT
+-------
+ffmpeg_cmdline.go: Helper go script to concatenate image segments
 
 TODO
 --------

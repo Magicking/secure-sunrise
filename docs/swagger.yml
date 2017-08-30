@@ -1,0 +1,76 @@
+swagger: '2.0'
+info:
+    title: Secure sunriset
+    description: TODO
+    version: "0.1.0"
+produces:
+    - application/json
+consumes:
+    - application/json
+paths:
+    /feeds:
+        get:
+            summary: Get a list of src video or gif
+            operationId: getfeeds
+            description: |
+                Get a list of src video or gif
+            produces:
+                - application/json
+            parameters:
+              - name: name
+                in: query
+                type: string
+                required: true
+                description: Feed name
+            responses:
+                200:
+                    description: |
+                        List of URL source to be played
+                    schema:
+                      type: array
+                      items:
+                          type: string
+                default:
+                    description: Internal error
+                    schema:
+                        $ref: '#/definitions/Error'
+    /control/add:
+        post:
+            summary: addURLs
+            operationId: addURLs
+            description: |
+                Add a video URL to feed
+            parameters:
+              - name: name
+                in: query
+                type: string
+                required: true
+                description: Feed name
+              - name: urls
+                in: body
+                schema:
+                  type: array
+                  items:
+                      type: string
+                required: true
+                description: Video URL list
+            responses:
+                200:
+                default:
+                    description: Internal error
+                    schema:
+                        $ref: '#/definitions/Error'
+definitions:
+    Error:
+        type: object
+        properties:
+            code:
+                type: integer
+                format: int32
+            message:
+                type: string
+            fields:
+                type: string
+        required:
+            - code
+            - message

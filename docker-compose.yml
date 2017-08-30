@@ -1,0 +1,27 @@
+version: '2'
+services:
+  secure-sunriset:
+    build: .
+    environment:
+      - DB_DSN=host=postgres user=Wlwc1FFHbeY dbname=secure-sunriset sslmode=disable password=lrwOuiz4gH
+      - GEODB_DSN=/db.mmdb
+    links:
+      - postgres
+
+  caddy-rev:
+    image: abiosoft/caddy
+    cap_add:
+      - NET_BIND_SERVICE
+    ports:
+      - "0.0.0.0:8000:8080"
+      - "0.0.0.0:8443:443"
+    volumes:
+      - "./Caddyfile:/etc/Caddyfile:ro"
+      - "./mockup:/var/www:ro"
+
+  postgres:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_USER=Wlwc1FFHbeY
+      - POSTGRES_PASSWORD=vrOoFUvzN
+      - POSTGRES_DB=secure-sunriset

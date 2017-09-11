@@ -1,4 +1,4 @@
-FROM golang
+FROM golang:alpine
 MAINTAINER Sylvain Laurent
 
 ENV GOBIN $GOPATH/bin

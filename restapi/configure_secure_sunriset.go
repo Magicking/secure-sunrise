@@ -5,6 +5,7 @@ package restapi
 import (
 	"context"
 	"crypto/tls"
+	"log"
 	"net/http"
 
 	errors "github.com/go-openapi/errors"
@@ -46,7 +47,14 @@ func configureAPI(api *operations.SecureSunrisetAPI) http.Handler {
 	// s.api.Logger = log.Printf
 
 	ctx := internal.NewDBToContext(context.Background(), serviceopts.DbDSN)
-	ctx = internal.NewGeoDBToContext(context.Background(), serviceopts.GeoDBDSN)
+	ctx = internal.NewGeoDBToContext(ctx, serviceopts.GeoDBDSN)
+	ctx = internal.NewFeedManagerToContext(ctx)
+
+	fm, ok := internal.FeedManagerFromContext(ctx)
+	if !ok {
+		log.Panic("Could not obtain FeedManager from context")
+	}
+	fm.NewFeed(ctx, "sunrise")
 
 	api.JSONConsumer = runtime.JSONConsumer()
 

@@ -82,3 +82,6 @@
 [submodule "vendor/github.com/jinzhu/inflection"]
 	path = vendor/github.com/jinzhu/inflection
 	url = https://github.com/jinzhu/inflection
+[submodule "vendor/github.com/lib/pq"]
+	path = vendor/github.com/lib/pq
+	url = https://github.com/lib/pq

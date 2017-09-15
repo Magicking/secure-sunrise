@@ -42,6 +42,7 @@ func GeoDBFromContext(ctx context.Context) (*geoip2.Reader, bool) {
 
 func NewFeedManagerToContext(ctx context.Context) context.Context {
 	fm := NewFeedManager(ctx)
+	go fm.Run(ctx) // TODO death pill
 	return context.WithValue(ctx, feedManagerKey, fm)
 }
 

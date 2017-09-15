@@ -54,7 +54,8 @@ func configureAPI(api *operations.SecureSunrisetAPI) http.Handler {
 	if !ok {
 		log.Panic("Could not obtain FeedManager from context")
 	}
-	fm.NewFeed(ctx, "sunrise")
+	fm.NewFeed(ctx, "sunrise", true)
+	fm.NewFeed(ctx, "sunset", false)
 
 	api.JSONConsumer = runtime.JSONConsumer()
 

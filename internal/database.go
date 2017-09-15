@@ -22,12 +22,20 @@ func InsertCamera(ctx context.Context, cam *Camera) error {
 	return nil
 }
 
-func GetCamerasSunrise(ctx context.Context, begin, end time.Time) ([]*Camera, error) {
-	return GetCameras(ctx, true, begin, end)
-}
-
-func GetCamerasSunset(ctx context.Context, begin, end time.Time) ([]*Camera, error) {
-	return GetCameras(ctx, false, begin, end)
+func GetPastCameras(ctx context.Context, now time.Time) (ret []*Camera, err error) {
+	db, ok := DBFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("Could not obtain DB from Context")
+	}
+	cursor := db.Where("sunrise < ? or sunset < ?", now, now)
+	if cursor.Error != nil {
+		return nil, cursor.Error
+	}
+	if cursor.Find(&ret).RecordNotFound() {
+		log.Println("No samples found in database, astro updater too fast ?")
+		return nil, nil
+	}
+	return ret, nil
 }
 
 func GetCameras(ctx context.Context, sunrise bool, begin, end time.Time) (ret []*Camera, err error) {

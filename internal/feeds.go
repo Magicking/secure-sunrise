@@ -28,26 +28,27 @@ func (fm *FeedManager) NewFeed(ctx context.Context, name string, isSunrise bool)
 func (fm *FeedManager) Run(ctx context.Context) {
 	// TODO
 	// Calculate Next Sunrise and Next Sunset for past sunrise & sunset
-	ticker := time.Ticker(10 * time.Second)
-	for {
-		select {
-		case now := <-ticker.C:
-			cams, err := GetPastCameras(ctx, now)
-			if err != nil {
-				log.Printf("FeedManager Runner: %v", err)
-				continue
-			}
-			for _, cam := range cams {
-				if cam.Sunrise.Before(now) {
-					//UPDATE ASTROTIME
-				}
-				if cam.Sunset.Before(now) {
-					//UPDATE ASTROTIME
-				}
-				// SAVE CAM
-			}
-		}
+	c, ok := SchedulerChanFromContext(ctx)
+	if !ok {
+		log.Fatalf("Could not obtain Scheduler chan from context")
 	}
+	c <- callback(func(ctx context.Context) error {
+		now := time.Now()
+		cams, err := GetPastCameras(ctx, now)
+		if err != nil {
+			return fmt.Errorf("FeedManager Runner: %v", err)
+		}
+		for _, cam := range cams {
+			if cam.Sunrise.Before(now) {
+				//UPDATE ASTROTIME
+			}
+			if cam.Sunset.Before(now) {
+				//UPDATE ASTROTIME
+			}
+			// SAVE CAM
+		}
+		return nil
+	})
 }
 
 func (fm *FeedManager) GetFeed(name string) (*Feed, error) {
@@ -75,16 +76,16 @@ func (f *Feed) Run(ctx context.Context) {
 	// Get urls to display
 	// Feed URLs to sampler
 	// Sampler populate feeder with expiration time
-	duration := 10 * time.Second
-	ticker := time.NewTicker(duration)
-	for {
-		select {
-		case <-ticker.C:
-			urls := f.getNextCurrentUrls(ctx)
-			f.CurrentURLs = urls
-			log.Printf("URLS(%v): %v", len(urls), urls)
-		}
+	c, ok := SchedulerChanFromContext(ctx)
+	if !ok {
+		log.Fatalf("Could not obtain Scheduler chan from context")
 	}
+	c <- callback(func(ctx context.Context) error {
+		urls := f.getNextCurrentUrls(ctx)
+		f.CurrentURLs = urls
+		log.Printf("URLS(%v): %v", len(urls), urls)
+		return nil
+	})
 }
 
 func (f *Feed) getNextCurrentUrls(ctx context.Context) []string {

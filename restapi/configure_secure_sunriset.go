@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"time"
 
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
@@ -46,9 +47,11 @@ func configureAPI(api *operations.SecureSunrisetAPI) http.Handler {
 	// Example:
 	// s.api.Logger = log.Printf
 
-	ctx := internal.NewDBToContext(context.Background(), serviceopts.DbDSN)
-	ctx = internal.NewGeoDBToContext(ctx, serviceopts.GeoDBDSN)
-	ctx = internal.NewFeedManagerToContext(ctx)
+	ctx := internal.InitContext(context.Background())
+	internal.NewSchedulerToContext(ctx, 10*time.Second)
+	internal.NewDBToContext(ctx, serviceopts.DbDSN)
+	internal.NewGeoDBToContext(ctx, serviceopts.GeoDBDSN)
+	internal.NewFeedManagerToContext(ctx)
 
 	fm, ok := internal.FeedManagerFromContext(ctx)
 	if !ok {

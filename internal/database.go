@@ -10,6 +10,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+var fPruneDB bool
+
 func InsertCamera(ctx context.Context, cam *Camera) error {
 	db, ok := DBFromContext(ctx)
 	if !ok {
@@ -20,6 +22,19 @@ func InsertCamera(ctx context.Context, cam *Camera) error {
 	}
 
 	return nil
+}
+
+func UpdateCam(ctx context.Context, cam *Camera) (bool, error) {
+	db, ok := DBFromContext(ctx)
+	if !ok {
+		return false, fmt.Errorf("Could not obtain DB from Context")
+	}
+	cur := db.Save(cam)
+	if cur.Error != nil {
+		return false, cur.Error
+	}
+
+	return cur.RowsAffected > 0, nil
 }
 
 func GetPastCameras(ctx context.Context, now time.Time) (ret []*Camera, err error) {
@@ -68,6 +83,29 @@ func DelCamera(ctx context.Context, url string) error {
 	if cursor.Error != nil {
 		return fmt.Errorf("Error deleting for URL (%v): %v", url, cursor.Error)
 	}
+	fPruneDB = true
+	return nil
+}
+
+func RegisterDBCallback(ctx context.Context) error {
+	db, ok := DBFromContext(ctx)
+	if !ok {
+		return fmt.Errorf("Could not obtain DB from Context")
+	}
+	c, ok := SchedulerChanFromContext(ctx)
+	if !ok {
+		return fmt.Errorf("Could not obtain Scheduler chan from context")
+	}
+
+	c <- callback(func(context.Context) error {
+		if fPruneDB {
+			var count uint
+			db.Unscoped().Find(&Camera{}).Count(&count)
+			log.Printf("Should prune %d Cameras", count)
+			fPruneDB = false
+		}
+		return nil
+	})
 	return nil
 }
 

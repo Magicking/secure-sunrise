@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dinedal/astrotime"
+	"github.com/jinzhu/gorm"
 	"net"
 	"net/url"
 	"strings"
@@ -11,11 +12,13 @@ import (
 )
 
 type Camera struct {
-	URL     string
-	Lat     float64
-	Lng     float64
-	Sunrise time.Time // Next Sunrise
-	Sunset  time.Time // Next Sunset
+	gorm.Model
+	URL       string
+	Lat       float64
+	Lng       float64
+	Sunrise   time.Time // Next Sunrise
+	Sunset    time.Time // Next Sunset
+	FailCount uint
 }
 
 func NewCamera(ctx context.Context, _url string) (*Camera, error) {

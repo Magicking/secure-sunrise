@@ -22,11 +22,9 @@ func NewScheduler(ctx context.Context, tick time.Duration) chan callback {
 				callbacks = append(callbacks, f)
 			case <-t.C:
 				for i, cb := range callbacks {
-					go func(cb callback) {
-						if err := cb(ctx); err != nil {
-							log.Printf("Callback[%d]: error: %v", i, err)
-						}
-					}(cb)
+					if err := cb(ctx); err != nil {
+						log.Printf("Callback[%d]: error: %v", i, err)
+					}
 				}
 				//TODO death pill
 			}

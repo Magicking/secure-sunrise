@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/dinedal/astrotime"
 	"log"
 	"time"
 )
@@ -22,7 +23,7 @@ func NewFeedManager(ctx context.Context) *FeedManager {
 func (fm *FeedManager) NewFeed(ctx context.Context, name string, isSunrise bool) {
 	feed := NewFeed(isSunrise)
 	fm.Feeds[name] = feed
-	go feed.Run(ctx) // TODO Add channel to close
+	go feed.Run(ctx)
 }
 
 func (fm *FeedManager) Run(ctx context.Context) {
@@ -40,12 +41,12 @@ func (fm *FeedManager) Run(ctx context.Context) {
 		}
 		for _, cam := range cams {
 			if cam.Sunrise.Before(now) {
-				//UPDATE ASTROTIME
+				cam.Sunrise = astrotime.NextSunrise(now, cam.Lat, cam.Lng)
 			}
 			if cam.Sunset.Before(now) {
-				//UPDATE ASTROTIME
+				cam.Sunset = astrotime.NextSunset(now, cam.Lat, cam.Lng)
 			}
-			// SAVE CAM
+			UpdateCam(ctx, cam)
 		}
 		return nil
 	})

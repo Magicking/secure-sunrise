@@ -13,12 +13,13 @@ import (
 
 type Camera struct {
 	gorm.Model
-	URL       string
-	Lat       float64
-	Lng       float64
-	Sunrise   time.Time // Next Sunrise
-	Sunset    time.Time // Next Sunset
-	FailCount uint
+	URL           string
+	Lat           float64
+	Lng           float64
+	CurrentSample string
+	Sunrise       time.Time // Next Sunrise
+	Sunset        time.Time // Next Sunset
+	FailCount     uint
 }
 
 func NewCamera(ctx context.Context, _url string) (*Camera, error) {

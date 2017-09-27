@@ -88,10 +88,6 @@ func DelCamera(ctx context.Context, url string) error {
 }
 
 func RegisterDBCallback(ctx context.Context) error {
-	db, ok := DBFromContext(ctx)
-	if !ok {
-		return fmt.Errorf("Could not obtain DB from Context")
-	}
 	c, ok := SchedulerChanFromContext(ctx)
 	if !ok {
 		return fmt.Errorf("Could not obtain Scheduler chan from context")
@@ -99,6 +95,10 @@ func RegisterDBCallback(ctx context.Context) error {
 
 	c <- callback(func(context.Context) error {
 		if fPruneDB {
+			db, ok := DBFromContext(ctx)
+			if !ok {
+				return fmt.Errorf("Could not obtain DB from Context")
+			}
 			var count uint
 			db.Unscoped().Find(&Camera{}).Count(&count)
 			log.Printf("Should prune %d Cameras", count)

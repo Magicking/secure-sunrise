@@ -35,7 +35,7 @@ func Getfeeds(ctx context.Context, params op.GetfeedsParams) middleware.Responde
 		log.Println(err_str)
 		return op.NewGetfeedsDefault(500).WithPayload(&models.Error{Message: &err_str})
 	}
-	sunrise, err := fm.GetFeed(params.Name)
+	sunrise, err := fm.GetFeed(ctx, params.Name)
 	if err != nil {
 		log.Println(err)
 		err_str := err.Error()

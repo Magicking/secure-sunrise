@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"context"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -64,7 +65,7 @@ func GetCameras(ctx context.Context, sunrise bool, begin, end time.Time) (ret []
 	} else {
 		whereString = "sunset > ? AND sunset < ?"
 	}
-	cursor := db.Where(whereString, begin, end)
+	cursor := db.Where(whereString, begin, end).Select("DISTINCT(URL)")
 	if cursor.Error != nil {
 		return nil, cursor.Error
 	}

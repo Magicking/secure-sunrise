@@ -1,6 +1,8 @@
 FROM golang:alpine
 MAINTAINER Sylvain Laurent
 
+RUN apk add --no-cache ffmpeg
+
 ENV GOBIN $GOPATH/bin
 ENV PROJECT_DIR github.com/Magicking/secure-sunrise
 ENV PROJECT_NAME secure-sunriset-server
@@ -17,6 +19,7 @@ WORKDIR /go/src/${PROJECT_DIR}
 
 RUN go build -v -o /go/bin/main /go/src/${PROJECT_DIR}/cmd/${PROJECT_NAME}/main.go
 ADD run.sh /go/src/${PROJECT_DIR}/
+ADD get_sample.sh /
 ENTRYPOINT /go/src/${PROJECT_DIR}/run.sh
 
 EXPOSE 8090

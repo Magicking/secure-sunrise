@@ -3,8 +3,11 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/dinedal/astrotime"
 	"log"
+
+	"github.com/dinedal/astrotime"
+	//	"os/exec"
+
 	"time"
 )
 
@@ -52,12 +55,13 @@ func (fm *FeedManager) Run(ctx context.Context) {
 	})
 }
 
-func (fm *FeedManager) GetFeed(name string) (*Feed, error) {
+func (fm *FeedManager) GetFeed(ctx context.Context, name string) (*Feed, error) {
 	feed, ok := fm.Feeds[name]
 	if !ok {
 		return nil, fmt.Errorf("Feed %q not found", name)
 	}
-	return feed, nil
+	return &Feed{CurrentURLs: feed.CurrentURLs}, nil
+	//return feed, nil
 }
 
 // Holds currents samples / urls
@@ -82,25 +86,47 @@ func (f *Feed) Run(ctx context.Context) {
 		log.Fatalf("Could not obtain Scheduler chan from context")
 	}
 	c <- callback(func(ctx context.Context) error {
-		urls := f.getNextCurrentUrls(ctx)
+		urls := f.GetNextCurrentUrls(ctx)
 		f.CurrentURLs = urls
 		log.Printf("URLS(%v): %v", len(urls), urls)
 		return nil
 	})
 }
 
-func (f *Feed) getNextCurrentUrls(ctx context.Context) []string {
+func (f *Feed) GetNextCurrentUrls(ctx context.Context) []string {
 	now := time.Now()
 	duration := 30 * time.Minute
 	end := now.Add(duration)
-	cameras, err := GetCameras(ctx, f.isSunrise, now, end) // TODO Do Sunset a New Feed level
+	cameras, err := GetCameras(ctx, f.isSunrise, now, end)
 	if err != nil {
 		log.Printf("Error fetching samples from database: %v", err)
 		return nil
 	}
-	ret := make([]string, len(cameras))
-	for i, e := range cameras {
-		ret[i] = e.URL
+	camerasUniq := make(map[string]struct{})
+	ret := make([]string, len(cameras)) //max cameras
+	for _, e := range cameras {
+		if _, ok := camerasUniq[e.URL]; ok {
+			continue
+		}
+		camerasUniq[e.URL] = struct{}{}
+		/* Below code to get sample and put it backend
+		sampleTime := 10 * time.Second // TODO move to configuration
+		// Allow up to two time the duration of sample to record it
+		ctx, cancel := context.WithTimeout(context.Background(), sampleTime*2)
+		defer cancel()
+
+		url := e.URL
+		out := fmt.Sprintf("%s", "TODOuuid")
+		duration := Time(sampleTime).String()
+		// TODO put get_sample.sh to configuration
+		if err := exec.CommandContext(ctx, "/get_sample.sh", url, out, duration).Run(); err != nil {
+			log.Println("Failed to get sample for %v", url)
+			return
+		}
+		retURL <- out
+		*/
+		//log.Println("Current url", e.CurrentSample, e.URL)
+		ret = append(ret, e.URL)
 	}
 	return ret
 }

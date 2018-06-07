@@ -48,9 +48,9 @@ func configureAPI(api *operations.SecureSunrisetAPI) http.Handler {
 	// s.api.Logger = log.Printf
 
 	ctx := internal.InitContext(context.Background())
-	internal.NewSchedulerToContext(ctx, 10*time.Second)
 	internal.NewDBToContext(ctx, serviceopts.DbDSN)
 	internal.NewGeoDBToContext(ctx, serviceopts.GeoDBDSN)
+	internal.NewSchedulerToContext(ctx, 1*time.Second)
 	internal.NewFeedManagerToContext(ctx)
 
 	fm, ok := internal.FeedManagerFromContext(ctx)

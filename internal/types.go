@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/oschwald/geoip2-golang"
 	"log"
@@ -15,6 +16,24 @@ var dbKey key = 1
 var geoDBKey key = 2
 var feedManagerKey key = 3
 var schedulerKey key = 4
+
+type Time time.Duration
+
+func (t Time) Hours() int64 {
+	return int64(time.Duration(t) / time.Hour)
+}
+
+func (t Time) Minutes() int64 {
+	return int64((time.Duration(t) % time.Hour) / time.Minute)
+}
+
+func (t Time) Seconds() int64 {
+	return int64((time.Duration(t) % time.Minute) / time.Second)
+}
+
+func (t Time) String() string {
+	return fmt.Sprintf("%02d:%02d:%02d", t.Hours(), t.Minutes(), t.Seconds())
+}
 
 type ctxValues struct {
 	m map[key]interface{}
@@ -43,7 +62,7 @@ func NewCtxValues() *ctxValues {
 func getContextValue(ctx context.Context, k key) interface{} {
 	v, ok := ctx.Value(ctxValKey).(*ctxValues)
 	if !ok {
-		log.Fatalf("Could not obtain map context values")
+		log.Fatalf("Could not obtain map context values, key: %v", k)
 	}
 	return v.Get(k)
 }

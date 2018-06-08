@@ -5,6 +5,8 @@ services:
     environment:
       - DB_DSN=host=postgres user=Wlwc1FFHbeY dbname=secure-sunriset sslmode=disable password=vrOoFUvzN
       - GEODB_DSN=/db.mmdb
+    volumes:
+      - "./clips:/var/clips"
     links:
       - postgres
 

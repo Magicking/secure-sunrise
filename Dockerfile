@@ -1,7 +1,9 @@
 FROM golang:alpine
 MAINTAINER Sylvain Laurent
 
-RUN apk add --no-cache ffmpeg
+WORKDIR /
+RUN apk add --no-cache curl && curl https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz | tar xJv && \
+    mv ffmpeg-4.0-64bit-static/ffmpeg /bin/ffmpeg
 
 ENV GOBIN $GOPATH/bin
 ENV PROJECT_DIR github.com/Magicking/secure-sunrise

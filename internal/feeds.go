@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/dinedal/astrotime"
+	uuid "github.com/satori/go.uuid"
 	//	"os/exec"
 
 	"time"
@@ -109,24 +111,23 @@ func (f *Feed) GetNextCurrentUrls(ctx context.Context) []string {
 			continue
 		}
 		camerasUniq[e.URL] = struct{}{}
-		/* Below code to get sample and put it backend
+		// Below code to get sample and put it backend
 		sampleTime := 10 * time.Second // TODO move to configuration
-		// Allow up to two time the duration of sample to record it
-		ctx, cancel := context.WithTimeout(context.Background(), sampleTime*2)
-		defer cancel()
+		// allow 2 times the maximum sample time
+		//		ctx, cancel := context.WithTimeout(context.Background(), sampleTime*3)
+		//		defer cancel()
 
 		url := e.URL
-		out := fmt.Sprintf("%s", "TODOuuid")
+		out := fmt.Sprintf("%s", uuid.Must(uuid.NewV4()))
 		duration := Time(sampleTime).String()
 		// TODO put get_sample.sh to configuration
-		if err := exec.CommandContext(ctx, "/get_sample.sh", url, out, duration).Run(); err != nil {
-			log.Println("Failed to get sample for %v", url)
-			return
+		if err := exec.CommandContext(context.Background(), "/get_sample.sh", url, out, duration).Run(); err != nil {
+			log.Printf("Failed to get sample for %v", url)
+			continue
 		}
-		retURL <- out
-		*/
+		//retURL <- out
 		//log.Println("Current url", e.CurrentSample, e.URL)
-		ret = append(ret, e.URL)
+		ret = append(ret, out)
 	}
 	return ret
 }

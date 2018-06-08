@@ -85,3 +85,6 @@
 [submodule "vendor/github.com/lib/pq"]
 	path = vendor/github.com/lib/pq
 	url = https://github.com/lib/pq
+[submodule "vendor/github.com/satori/go.uuid"]
+	path = vendor/github.com/satori/go.uuid
+	url = https://github.com/satori/go.uuid

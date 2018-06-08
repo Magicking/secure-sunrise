@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	errors "github.com/go-openapi/errors"
@@ -97,5 +98,16 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return handler
+	return clipMiddleware(handler)
+}
+
+func clipMiddleware(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Serving clip
+		if strings.Index(r.URL.Path, "/clips/") == 0 {
+			http.StripPrefix("/clips/", http.FileServer(http.Dir("/var/clips"))).ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
